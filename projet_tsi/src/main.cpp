@@ -429,6 +429,7 @@ int main(int argc, char** argv)
 
   glutDisplayFunc(display_callback);
   glutKeyboardFunc(keyboard_callback);
+  glutKeyboardUpFunc(keyboardup_callback);
   glutSpecialFunc(special_callback);
   glutTimerFunc(25, timer_callback, 0);
 
