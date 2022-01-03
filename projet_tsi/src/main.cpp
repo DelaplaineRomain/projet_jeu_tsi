@@ -353,7 +353,7 @@ static void timer_callback(int)
     nouvellePosX = liste_char[0].tr.translation.x + dL;
     liste_char[0].tr.rotation_euler.y = 1.57;
   }
-  if (boundaries(nouvellePosX,nouvellePosZ)){
+  if ((boundaries(nouvellePosX,nouvellePosZ)) && (collision(1,nouvellePosX,nouvellePosZ))){
     liste_char[0].tr.translation.x = nouvellePosX;
     liste_char[0].tr.translation.z = nouvellePosZ;
   }
@@ -401,7 +401,7 @@ static void timer_callback(int)
     nouvellePosX = liste_char[1].tr.translation.x + dL;
     liste_char[1].tr.rotation_euler.y = 1.57;
   }
-  if (boundaries(nouvellePosX,nouvellePosZ)){
+  if ((boundaries(nouvellePosX,nouvellePosZ)) && (collision(2,nouvellePosX,nouvellePosZ))){
     liste_char[1].tr.translation.x = nouvellePosX;
     liste_char[1].tr.translation.z = nouvellePosZ;
   }
@@ -702,7 +702,7 @@ void init_model_3()
   obj[2].nb_triangle = m.connectivity.size();
   obj[2].texture_id = glhelper::load_texture("data/white.tga");
 
-  obj[2].visible = true;
+  obj[2].visible = false;
   obj[2].prog = shader_program_id;
 
   obj[2].tr.translation = vec3(2.0, 0.0, -10.0);
@@ -742,4 +742,22 @@ bool boundaries(float posX,float posZ)
   } else {
     return false;
   }
+}
+
+bool collision(int joueur,float posX,float posZ){
+    if(joueur == 1){
+        vecteur_rayon = vec2(posX,posZ) - vec2(liste_char[1].tr.translation.x,liste_char[1].tr.translation.z);
+        if(norm(vecteur_rayon)>=1.0f){
+            return true;
+        } else {
+            return false;
+        }
+    } else if(joueur == 2){
+        vecteur_rayon = vec2(posX,posZ) - vec2(liste_char[0].tr.translation.x,liste_char[0].tr.translation.z);
+        if(norm(vecteur_rayon)>=1.0f){
+            return true;
+        } else {
+            return false;
+        }
+    } 
 }

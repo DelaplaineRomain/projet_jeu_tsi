@@ -77,3 +77,4 @@ void init_proj(int i);
 void draw_obj3d(const objet3d* const obj, camera cam);
 
 bool boundaries(float posX,float posY);
+bool collision(int joueur1,float posX,float posZ);
