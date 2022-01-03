@@ -33,6 +33,24 @@ objet3d liste_proj[nb_projectile];
 const int nb_text = 2;
 text text_to_draw[nb_text];
 
+// initialisation des variables globales
+float dL = 0.1f; // Vitesse de déplacement
+float nouvellePosX;
+float nouvellePosZ;
+
+bool keyupP1_pressed=false;
+bool keydownP1_pressed=false;
+bool keyleftP1_pressed=false;
+bool keyrightP1_pressed=false;
+bool keyshootP1_pressed=false;
+
+bool keyupP2_pressed=false;
+bool keydownP2_pressed=false;
+bool keyleftP2_pressed=false;
+bool keyrightP2_pressed=false;
+bool keyshootP2_pressed=false;
+
+vec3 vecteur_rayon;
 
 /*****************************************************************************\
 * initialisation                                                              *
@@ -61,15 +79,15 @@ static void init()
 
   gui_program_id = glhelper::create_program_from_file("shaders/gui.vert", "shaders/gui.frag"); CHECK_GL_ERROR();
 
-  text_to_draw[0].value = "CPE";
-  text_to_draw[0].bottomLeft = vec2(-0.2, 0.5);
-  text_to_draw[0].topRight = vec2(0.2, 1);
+  text_to_draw[0].value = "Romain et Clement"; // TODO refaire le TGA à la limite
+  text_to_draw[0].bottomLeft = vec2(-1.0,0.9);
+  text_to_draw[0].topRight = vec2(-0.25, 3.0);
   init_text(text_to_draw);
 
   text_to_draw[1]=text_to_draw[0];
-  text_to_draw[1].value = "Lyon";
-  text_to_draw[1].bottomLeft.y = 0.0f;
-  text_to_draw[1].topRight.y = 0.5f;
+  text_to_draw[1].value = "Jeu Player vs Player";
+  text_to_draw[1].bottomLeft.y = 0.8f;
+  text_to_draw[1].topRight.y = 2.0f;
 }
 
 /*****************************************************************************\
@@ -114,38 +132,165 @@ static void gestion_projectile(int id_joueur,int current_nb_proj)
 \*****************************************************************************/
 static void keyboard_callback(unsigned char key, int, int)
 {
-  float dL=0.05f;
+  float delta = 0.5f;
 
   switch (key)
   {
     case 'p':
       glhelper::print_screen();
       break;
-    /*case 'q':
-    case 'Q':
     case 27:
       exit(0);
       break;
-    */
-
-    case 'z':
-      liste_char[0].tr.translation.z -= dL;
+   // Changement de la translation de la caméra
+/*    case 'i':
+      cam.tr.translation.x += delta;
+      printf("translation x = %f \n",cam.tr.translation.x);
       break;
-    case 's':
-      liste_char[0].tr.translation.z += dL;
+    case 'u':
+      cam.tr.translation.x -= delta;
+      printf("translation x = %f \n",cam.tr.translation.x);
       break;
-    case 'q':
-      liste_char[0].tr.translation.x -= dL;
+    case 'k':
+      cam.tr.translation.y += delta;
+      printf("translation y = %f \n",cam.tr.translation.y);
+      break;
+    case 'j':
+      cam.tr.translation.y -= delta;
+      printf("translation y = %f \n",cam.tr.translation.y);
+      break;
+    case ';':
+      cam.tr.translation.z += delta;
+      printf("translation z = %f \n",cam.tr.translation.z);
+      break;
+    case ',':
+      cam.tr.translation.z -= delta;
+      printf("translation z = %f \n",cam.tr.translation.z);
+      break;
+    // Changement de rotation_center de la camera
+    case 'y':
+      cam.tr.rotation_center.x += delta;
+      printf("rotation_center x = %f \n",cam.tr.rotation_center.x);
+      break;
+    case 't':
+      cam.tr.rotation_center.x -= delta;
+      printf("rotation _center x = %f \n",cam.tr.rotation_center.x);
+      break;
+    case 'h':
+      cam.tr.rotation_center.y += delta;
+      printf("rotation_center y = %f \n",cam.tr.rotation_center.y);
+      break;
+    case 'g':
+      cam.tr.rotation_center.y -= delta;
+      printf("rotation_center y = %f \n",cam.tr.rotation_center.y);
+      break;
+    case 'n':
+      cam.tr.rotation_center.z += delta;
+      printf("rotation_center z = %f \n",cam.tr.rotation_center.z);
+      break;
+    case 'b':
+      cam.tr.rotation_center.z -= delta;
+      printf("rotation_center z = %f \n",cam.tr.rotation_center.z);
+      break;
+    // Changement de rotation_euler de la camera
+    case 'r':
+      printf("avant x: %f",cam.tr.rotation_euler.x);
+      cam.tr.rotation_euler.x += delta;
+      printf("rotation_euler x = %f \n",cam.tr.rotation_euler.x);
+      break;
+    case 'e':
+      cam.tr.rotation_euler.x -= delta;
+      printf("rotation _euler x = %f \n",cam.tr.rotation_euler.x);
+      break;
+    case 'f':
+      cam.tr.rotation_euler.y += delta;
+      printf("rotation_euler y = %f \n",cam.tr.rotation_euler.y);
       break;
     case 'd':
-      liste_char[0].tr.translation.x += dL;
+      cam.tr.rotation_euler.y -= delta;
+      printf("rotation_euler y = %f \n",cam.tr.rotation_euler.y);
+      break;
+    case 'v':
+      cam.tr.rotation_euler.z += delta;
+      printf("rotation_euler z = %f \n",cam.tr.rotation_euler.z);
+      break;
+    case 'c':
+      cam.tr.rotation_euler.z -= delta;
+      printf("rotation_euler z = %f \n",cam.tr.rotation_euler.z);
+      break;*/
+    // Commandes Player 1
+    case 'z':
+      keyupP1_pressed = true;
+      break;
+    case 's':
+      keydownP1_pressed = true;
+      break;
+    case 'q':
+      keyleftP1_pressed = true;
+      break;
+    case 'd':
+      keyrightP1_pressed = true;
+      break;
+    case 'x':
+      keyshootP1_pressed = true;
       break;
 
-    case 'e':
-      current_nb_proj++;
-      gestion_projectile(id_joueur_1,current_nb_proj);
+    // Commandes Player 2  
+    case '8':
+      keyupP2_pressed = true;
       break;
-    
+    case '5':
+      keydownP2_pressed = true;
+      break;
+    case '4':
+      keyleftP2_pressed = true;
+      break;
+    case '6':
+      keyrightP2_pressed = true;
+      break;
+    case '2':
+      keyshootP2_pressed = true;
+      break;
+  }
+}
+
+static void keyboardup_callback(unsigned char key, int, int)
+{
+  switch (key)
+  {
+    // Commandes Player 1
+    case 'z':
+      keyupP1_pressed = false;
+      break;
+    case 's':
+      keydownP1_pressed = false;
+      break;
+    case 'q':
+      keyleftP1_pressed = false;
+      break;
+    case 'd':
+      keyrightP1_pressed = false;
+      break;
+    case 'x':
+      keyshootP1_pressed = false;
+      break;
+
+    // Commandes Player 2  
+    case '8':
+      keyupP2_pressed = false;
+      break;
+    case '5':
+      keydownP2_pressed = false;
+      break;
+    case '4':
+      keyleftP2_pressed = false;
+      break;
+    case '6':
+      keyrightP2_pressed = false;
+      break;
+    case '2':
+      keyshootP2_pressed = false;
+      break;
   }
 }
 
@@ -154,22 +299,6 @@ static void keyboard_callback(unsigned char key, int, int)
 \*****************************************************************************/
 static void special_callback(int key, int, int)
 {
-  float dL=0.05f;
-  switch (key)
-  {
-    case GLUT_KEY_UP:
-      liste_char[1].tr.translation.z -= dL;
-      break;
-    case GLUT_KEY_DOWN:
-      liste_char[1].tr.translation.z += dL;
-      break;
-    case GLUT_KEY_LEFT:
-      liste_char[1].tr.translation.x -= dL;
-      break;
-    case GLUT_KEY_RIGHT:
-      liste_char[1].tr.translation.x += dL;
-      break;
-  }
 }
 
 
@@ -180,6 +309,112 @@ static void timer_callback(int)
 {
   glutTimerFunc(25, timer_callback, 0);
   glutPostRedisplay();
+  //gestion du déplacement Player 1
+  nouvellePosZ = liste_char[0].tr.translation.z;
+  nouvellePosX = liste_char[0].tr.translation.x;
+  if (keyupP1_pressed) {
+    if (keyleftP1_pressed){
+      liste_char[0].tr.rotation_euler.y = -2.35;
+      // déplacement diagonale haut gauche
+      nouvellePosX = liste_char[0].tr.translation.x - dL*0.7;
+      nouvellePosZ = liste_char[0].tr.translation.z - dL*0.7;
+    }else if (keyrightP1_pressed){
+      // déplacement diagonale haut droite
+      liste_char[0].tr.rotation_euler.y = 2.35;
+      nouvellePosZ = liste_char[0].tr.translation.z - dL*0.7;
+      nouvellePosX = liste_char[0].tr.translation.x + dL*0.7;
+    }else{
+      // déplacement vers le haut
+      nouvellePosZ = liste_char[0].tr.translation.z - dL;
+      liste_char[0].tr.rotation_euler.y = 3.14;
+    }
+  }else if (keydownP1_pressed) {
+    if (keyleftP1_pressed){
+      // déplacement diagonale bas gauche
+      liste_char[0].tr.rotation_euler.y = -0.78;
+      nouvellePosX = liste_char[0].tr.translation.x - dL*0.7;
+      nouvellePosZ = liste_char[0].tr.translation.z + dL*0.7;
+    }else if (keyrightP1_pressed){
+      // déplacement diagonale bas droite
+      liste_char[0].tr.rotation_euler.y = 0.78;
+      nouvellePosX = liste_char[0].tr.translation.x + dL*0.7;
+      nouvellePosZ = liste_char[0].tr.translation.z + dL*0.7;
+    }else{
+      // déplacement vers le bas
+      nouvellePosZ = liste_char[0].tr.translation.z + dL;
+      liste_char[0].tr.rotation_euler.y = 0;
+    }
+  }else if (keyleftP1_pressed) {
+    // déplacement vers la gauche
+    nouvellePosX = liste_char[0].tr.translation.x - dL;
+    liste_char[0].tr.rotation_euler.y = -1.57;
+  }else if (keyrightP1_pressed) {
+    // déplacement vers la droite
+    nouvellePosX = liste_char[0].tr.translation.x + dL;
+    liste_char[0].tr.rotation_euler.y = 1.57;
+  }
+  if (boundaries(nouvellePosX,nouvellePosZ)){
+    liste_char[0].tr.translation.x = nouvellePosX;
+    liste_char[0].tr.translation.z = nouvellePosZ;
+  }
+  //gestion du déplacement Player 2
+  nouvellePosZ = liste_char[1].tr.translation.z;
+  nouvellePosX = liste_char[1].tr.translation.x;
+  if (keyupP2_pressed) {
+    if (keyleftP2_pressed){
+      // déplacement diagonale haut gauche
+      liste_char[1].tr.rotation_euler.y = -2.35;
+      nouvellePosX = liste_char[1].tr.translation.x - dL*0.7;
+      nouvellePosZ = liste_char[1].tr.translation.z - dL*0.7;
+    }else if (keyrightP2_pressed){
+      // déplacement diagonale haut droite
+      liste_char[1].tr.rotation_euler.y = 2.35;
+      nouvellePosX = liste_char[1].tr.translation.x + dL*0.7;
+      nouvellePosZ = liste_char[1].tr.translation.z - dL*0.7;
+    }else{
+      // déplacement vers le haut2
+      nouvellePosZ = liste_char[1].tr.translation.z - dL;
+      liste_char[1].tr.rotation_euler.y = 3.14;
+    }
+  }else if (keydownP2_pressed) {
+    if (keyleftP2_pressed){
+      // déplacement diagonale bas gauche
+      liste_char[1].tr.rotation_euler.y = -0.78;
+      nouvellePosZ = liste_char[1].tr.translation.z + dL*0.7;
+      nouvellePosX = liste_char[1].tr.translation.x - dL*0.7;
+    }else if (keyrightP2_pressed){
+      // déplacement diagonale bas droite
+      liste_char[1].tr.rotation_euler.y = 0.78;
+      nouvellePosZ = liste_char[1].tr.translation.z + dL*0.7;
+      nouvellePosX = liste_char[1].tr.translation.x + dL*0.7;
+    }else{
+      // déplacement vers le bas
+      nouvellePosZ = liste_char[1].tr.translation.z + dL;
+      liste_char[1].tr.rotation_euler.y = 0;
+    }
+  }else if (keyleftP2_pressed) {
+    // déplacement vers la gauche
+    nouvellePosX = liste_char[1].tr.translation.x - dL;
+    liste_char[1].tr.rotation_euler.y = -1.57;
+  }else if (keyrightP2_pressed) {
+    // déplacement vers la droite
+    nouvellePosX = liste_char[1].tr.translation.x + dL;
+    liste_char[1].tr.rotation_euler.y = 1.57;
+  }
+  if (boundaries(nouvellePosX,nouvellePosZ)){
+    liste_char[1].tr.translation.x = nouvellePosX;
+    liste_char[1].tr.translation.z = nouvellePosZ;
+  }
+
+  //Gestion des projectiles
+  if (keyshootP1_pressed){
+    current_nb_proj++;
+    gestion_projectile(id_joueur_1,current_nb_proj);
+  }
+  if (keyshootP2_pressed){
+    current_nb_proj++;
+    gestion_projectile(id_joueur_2,current_nb_proj);
+  }
 }
 
 /*****************************************************************************\
@@ -497,4 +732,13 @@ void init_proj(int i)
 
   liste_proj[i].tr.translation = obj[0].tr.translation;
   // liste_proj[i].tr.translation = liste_char[id_joueur].tr.translation;
+}
+
+bool boundaries(float posX,float posZ)
+{
+  if( (posX >= -7.80) && (posX <= 7.80) && (posZ >= -7.80) && (posZ <= 7.80)){
+    return true;
+  } else {
+    return false;
+  }
 }

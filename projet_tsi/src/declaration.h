@@ -75,3 +75,5 @@ void init_char(int i,vec3 *liste_pos_char);
 void init_proj(int i);
 
 void draw_obj3d(const objet3d* const obj, camera cam);
+
+bool boundaries(float posX,float posY);
