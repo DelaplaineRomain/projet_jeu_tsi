@@ -59,6 +59,25 @@ bool keyshootP2_pressed=false;
 
 vec2 vecteur_rayon;
 
+int valMax = 56;
+float liste_boundaries[56] = {
+ -7.8f,7.8f,-7.8f,7.8f
+,-0.5f,0.5f,-0.5f,0.5f
+,-3.5f,-2.5f,-7.8f,-5.5f
+,-3.5f,-2.5f,-4.5f,-3.5f
+,-6.5f,-3.5f,-2.5f,-1.5f
+,2.5f,3.5f,5.5f,7.8f
+,2.5f,3.5f,3.5f,4.5f
+,3.5f,6.5f,1.5f,2.5f
+,-5.5f,-4.5f,0.5f,3.5f
+,-1.5f,-0.5f,1.5f,5.5f
+,-4.5f,-2.5f,5.5f,6.5f
+,4.5f,5.5f,-3.5f,-0.5f
+,0.5f,1.5f,-5.5f,-1.5f
+,2.5f,4.5f,-6.5f,-5.5f
+};
+bool valRen;
+
 /*****************************************************************************\
 * initialisation                                                              *
 \*****************************************************************************/
@@ -825,13 +844,18 @@ void init_proj_2(int i)
     // liste_proj_2[i].tr.translation = liste_char[id_joueur].tr.translation;
 }
 
-bool boundaries(float posX,float posZ)
-{
-  if( (posX >= -7.80) && (posX <= 7.80) && (posZ >= -7.80) && (posZ <= 7.80)){
-    return true;
-  } else {
-    return false;
-  }
+bool boundaries(float posX, float posZ)
+{   
+    valRen = true;
+    for (int i = 4; i < valMax; i = i+4) {
+        if ((posX >= liste_boundaries[i]) && (posX <= liste_boundaries[i+1]) && (posZ >= liste_boundaries[i+2]) && (posZ <= liste_boundaries[i+3])) {
+            valRen = false;
+        }
+    }
+    if ((posX <= liste_boundaries[0]) || (posX >= liste_boundaries[1]) || (posZ <= liste_boundaries[2]) || (posZ >= liste_boundaries[3])) {
+        valRen = false;
+    }
+    return valRen;
 }
 
 bool collision(int joueur,float posX,float posZ){
