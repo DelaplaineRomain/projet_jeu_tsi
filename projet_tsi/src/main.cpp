@@ -26,9 +26,14 @@ const int nb_char = 2;
 objet3d liste_char[nb_char];
 vec3 liste_pos_char[nb_char] = {vec3(-2.0,0.0,0.0),vec3(2.0,0.0,0.0)};
 
-const int nb_projectile = 10;
-int current_nb_proj = 0;
-objet3d liste_proj[nb_projectile];
+const int nb_projectile_1 = 9;
+int current_nb_proj_1 = 0;
+objet3d liste_proj_1[nb_projectile_1];
+float liste_direction_1[nb_projectile_1];
+const int nb_projectile_2 = 5;
+int current_nb_proj_2 = 0;
+objet3d liste_proj_2[nb_projectile_2];
+float liste_direction_2[nb_projectile_2];
 
 const int nb_text = 2;
 text text_to_draw[nb_text];
@@ -37,6 +42,8 @@ text text_to_draw[nb_text];
 float dL = 0.1f; // Vitesse de déplacement
 float nouvellePosX;
 float nouvellePosZ;
+float nouvelle_pos_x_proj;
+float nouvelle_pos_z_proj;
 
 bool keyupP1_pressed=false;
 bool keydownP1_pressed=false;
@@ -50,7 +57,7 @@ bool keyleftP2_pressed=false;
 bool keyrightP2_pressed=false;
 bool keyshootP2_pressed=false;
 
-vec3 vecteur_rayon;
+vec2 vecteur_rayon;
 
 /*****************************************************************************\
 * initialisation                                                              *
@@ -73,8 +80,12 @@ static void init()
     init_char(i,liste_pos_char);
   }
 
-  for (int i=0 ; i<nb_projectile ; i++) {
-    init_proj(i);
+  for (int i = 0; i < nb_projectile_1; i++) {
+      init_proj_1(i);
+  }
+
+  for (int i = 0; i < nb_projectile_2; i++) {
+      init_proj_2(i);
   }
 
   gui_program_id = glhelper::create_program_from_file("shaders/gui.vert", "shaders/gui.frag"); CHECK_GL_ERROR();
@@ -93,15 +104,142 @@ static void init()
 /*****************************************************************************\
 * gestion projectile                                                          *
 \*****************************************************************************/
-static void gestion_projectile(int id_joueur,int current_nb_proj)
+void gestion_projectile(int id_joueur)
 {
-  for (int i=0 ; i<nb_projectile ; i++) {
-    if (i == current_nb_proj) {
-      liste_proj[i].visible = true;
-      liste_proj[i].tr.translation = liste_char[id_joueur].tr.translation;
+    if (id_joueur == id_joueur_1) {
+        for (int i = 0; i < nb_projectile_1; i++) {
+            if (i == current_nb_proj_1) {
+                liste_proj_1[i].visible = true;
+                liste_proj_1[i].tr.translation = liste_char[id_joueur].tr.translation;
+
+                liste_direction_1[i] = liste_char[id_joueur].tr.rotation_euler.y;
+            }
+        }
     }
-    
-  }
+    else if (id_joueur == id_joueur_2) {
+        for (int i = 0; i < nb_projectile_2; i++) {
+            if (i == current_nb_proj_2) {
+                liste_proj_2[i].visible = true;
+                liste_proj_2[i].tr.translation = liste_char[id_joueur].tr.translation;
+
+                liste_direction_2[i] = liste_char[id_joueur].tr.rotation_euler.y;
+            }
+        }
+    }
+}
+
+void mvt_projectile() {
+    for (int i = 0; i < nb_projectile_1; i++) {
+        if (liste_proj_1[i].visible == true) {
+            nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z;
+            nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x;
+
+            float orientation = liste_direction_1[i];
+
+            if (orientation == (float)-2.35) {
+                // tir diagonale haut gauche
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 0.7;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 0.7;
+            }
+            else if (orientation == (float)2.35) {
+                // tir diagonale haut droite
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 0.7;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 0.7;
+            }
+            else if (orientation == (float)3.14) {
+                // tir haut
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL;
+            }
+            else if (orientation == (float)-0.78) {
+                // tir diagonale bas gauche
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 0.7;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 0.7;
+            }
+            else if (orientation == (float)0.78) {
+                // tir diagonale bas droite
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 0.7;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 0.7;
+
+            }
+            else if (orientation == (float)0) {
+                // tir bas
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL;
+            }
+            else if (orientation == (float)-1.57) {
+                // tir gauche
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL;
+            }
+            else if (orientation == (float)1.57) {
+                // tir droite
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL;
+            }
+
+            if (boundaries(nouvelle_pos_x_proj, nouvelle_pos_z_proj)) {
+                liste_proj_1[i].tr.translation.x = nouvelle_pos_x_proj;
+                liste_proj_1[i].tr.translation.z = nouvelle_pos_z_proj;
+            }
+            else {
+                init_proj_1(i);
+                current_nb_proj_1--;
+            }
+        }
+    }
+
+    for (int i = 0; i < nb_projectile_2; i++) {
+        if (liste_proj_2[i].visible == true) {
+            nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z;
+            nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x;
+
+            float orientation = liste_direction_2[i];
+
+            if (orientation == (float)-2.35) {
+                // tir diagonale haut gauche
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL * 0.7;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL * 0.7;
+            }
+            else if (orientation == (float)2.35) {
+                // tir diagonale haut droite
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL * 0.7;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL * 0.7;
+            }
+            else if (orientation == (float)3.14) {
+                // tir haut
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL;
+            }
+            else if (orientation == (float)-0.78) {
+                // tir diagonale bas gauche
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL * 0.7;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL * 0.7;
+            }
+            else if (orientation == (float)0.78) {
+                // tir diagonale bas droite
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL * 0.7;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL * 0.7;
+
+            }
+            else if (orientation == (float)0) {
+                // tir bas
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL;
+            }
+            else if (orientation == (float)-1.57) {
+                // tir gauche
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL;
+            }
+            else if (orientation == (float)1.57) {
+                // tir droite
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL;
+            }
+
+            if (boundaries(nouvelle_pos_x_proj, nouvelle_pos_z_proj)) {
+                liste_proj_2[i].tr.translation.x = nouvelle_pos_x_proj;
+                liste_proj_2[i].tr.translation.z = nouvelle_pos_z_proj;
+            }
+            else {
+                init_proj_2(i);
+                current_nb_proj_2--;
+            }
+        }
+    }
 }
 
 /*****************************************************************************\
@@ -121,8 +259,11 @@ static void gestion_projectile(int id_joueur,int current_nb_proj)
   for(int i = 0; i < nb_text; ++i)
     draw_text(text_to_draw + i);
 
-  for (int i=0 ; i<nb_projectile ; i++)
-    draw_obj3d(liste_proj + i, cam);
+  for (int i = 0; i < nb_projectile_1; i++)
+      draw_obj3d(liste_proj_1 + i, cam);
+
+  for (int i = 0; i < nb_projectile_2; i++)
+      draw_obj3d(liste_proj_2 + i, cam);
 
   glutSwapBuffers();
 }
@@ -142,82 +283,7 @@ static void keyboard_callback(unsigned char key, int, int)
     case 27:
       exit(0);
       break;
-   // Changement de la translation de la caméra
-/*    case 'i':
-      cam.tr.translation.x += delta;
-      printf("translation x = %f \n",cam.tr.translation.x);
-      break;
-    case 'u':
-      cam.tr.translation.x -= delta;
-      printf("translation x = %f \n",cam.tr.translation.x);
-      break;
-    case 'k':
-      cam.tr.translation.y += delta;
-      printf("translation y = %f \n",cam.tr.translation.y);
-      break;
-    case 'j':
-      cam.tr.translation.y -= delta;
-      printf("translation y = %f \n",cam.tr.translation.y);
-      break;
-    case ';':
-      cam.tr.translation.z += delta;
-      printf("translation z = %f \n",cam.tr.translation.z);
-      break;
-    case ',':
-      cam.tr.translation.z -= delta;
-      printf("translation z = %f \n",cam.tr.translation.z);
-      break;
-    // Changement de rotation_center de la camera
-    case 'y':
-      cam.tr.rotation_center.x += delta;
-      printf("rotation_center x = %f \n",cam.tr.rotation_center.x);
-      break;
-    case 't':
-      cam.tr.rotation_center.x -= delta;
-      printf("rotation _center x = %f \n",cam.tr.rotation_center.x);
-      break;
-    case 'h':
-      cam.tr.rotation_center.y += delta;
-      printf("rotation_center y = %f \n",cam.tr.rotation_center.y);
-      break;
-    case 'g':
-      cam.tr.rotation_center.y -= delta;
-      printf("rotation_center y = %f \n",cam.tr.rotation_center.y);
-      break;
-    case 'n':
-      cam.tr.rotation_center.z += delta;
-      printf("rotation_center z = %f \n",cam.tr.rotation_center.z);
-      break;
-    case 'b':
-      cam.tr.rotation_center.z -= delta;
-      printf("rotation_center z = %f \n",cam.tr.rotation_center.z);
-      break;
-    // Changement de rotation_euler de la camera
-    case 'r':
-      printf("avant x: %f",cam.tr.rotation_euler.x);
-      cam.tr.rotation_euler.x += delta;
-      printf("rotation_euler x = %f \n",cam.tr.rotation_euler.x);
-      break;
-    case 'e':
-      cam.tr.rotation_euler.x -= delta;
-      printf("rotation _euler x = %f \n",cam.tr.rotation_euler.x);
-      break;
-    case 'f':
-      cam.tr.rotation_euler.y += delta;
-      printf("rotation_euler y = %f \n",cam.tr.rotation_euler.y);
-      break;
-    case 'd':
-      cam.tr.rotation_euler.y -= delta;
-      printf("rotation_euler y = %f \n",cam.tr.rotation_euler.y);
-      break;
-    case 'v':
-      cam.tr.rotation_euler.z += delta;
-      printf("rotation_euler z = %f \n",cam.tr.rotation_euler.z);
-      break;
-    case 'c':
-      cam.tr.rotation_euler.z -= delta;
-      printf("rotation_euler z = %f \n",cam.tr.rotation_euler.z);
-      break;*/
+
     // Commandes Player 1
     case 'z':
       keyupP1_pressed = true;
@@ -232,8 +298,10 @@ static void keyboard_callback(unsigned char key, int, int)
       keyrightP1_pressed = true;
       break;
     case 'x':
-      keyshootP1_pressed = true;
-      break;
+        keyshootP1_pressed = true;
+        current_nb_proj_1++;
+        gestion_projectile(id_joueur_1);
+        break;
 
     // Commandes Player 2  
     case '8':
@@ -249,8 +317,10 @@ static void keyboard_callback(unsigned char key, int, int)
       keyrightP2_pressed = true;
       break;
     case '2':
-      keyshootP2_pressed = true;
-      break;
+        keyshootP2_pressed = true;
+        current_nb_proj_2++;
+        gestion_projectile(id_joueur_2);
+        break;
   }
 }
 
@@ -273,6 +343,8 @@ static void keyboardup_callback(unsigned char key, int, int)
       break;
     case 'x':
       keyshootP1_pressed = false;
+      //current_nb_proj_1++;
+      //gestion_projectile(id_joueur_1);
       break;
 
     // Commandes Player 2  
@@ -290,6 +362,8 @@ static void keyboardup_callback(unsigned char key, int, int)
       break;
     case '2':
       keyshootP2_pressed = false;
+      //current_nb_proj_2++;  
+      //gestion_projectile(id_joueur_2);
       break;
   }
 }
@@ -408,13 +482,16 @@ static void timer_callback(int)
 
   //Gestion des projectiles
   if (keyshootP1_pressed){
-    current_nb_proj++;
-    gestion_projectile(id_joueur_1,current_nb_proj);
+      //current_nb_proj_1++;
+      //gestion_projectile(id_joueur_1);
   }
+
   if (keyshootP2_pressed){
-    current_nb_proj++;
-    gestion_projectile(id_joueur_2,current_nb_proj);
+    // current_nb_proj_2++;
+    // gestion_projectile(id_joueur_2);
   }
+
+  mvt_projectile();
 }
 
 /*****************************************************************************\
@@ -722,17 +799,30 @@ void init_char(int i,vec3 *liste_pos_char)
 }
 
 
-void init_proj(int i)
+void init_proj_1(int i)
 {
-  liste_proj[i].vao = obj[2].vao;
+    liste_proj_1[i].vao = obj[2].vao;
 
-  liste_proj[i].nb_triangle = obj[2].nb_triangle;
-  liste_proj[i].texture_id = obj[2].texture_id;
-  liste_proj[i].visible = false;
-  liste_proj[i].prog = obj[2].prog;
+    liste_proj_1[i].nb_triangle = obj[2].nb_triangle;
+    liste_proj_1[i].texture_id = obj[2].texture_id;
+    liste_proj_1[i].visible = false;
+    liste_proj_1[i].prog = obj[2].prog;
 
-  liste_proj[i].tr.translation = obj[0].tr.translation;
-  // liste_proj[i].tr.translation = liste_char[id_joueur].tr.translation;
+    liste_proj_1[i].tr.translation = obj[0].tr.translation;
+    // liste_proj_1[i].tr.translation = liste_char[id_joueur].tr.translation;
+}
+
+void init_proj_2(int i)
+{
+    liste_proj_2[i].vao = obj[2].vao;
+
+    liste_proj_2[i].nb_triangle = obj[2].nb_triangle;
+    liste_proj_2[i].texture_id = obj[2].texture_id;
+    liste_proj_2[i].visible = false;
+    liste_proj_2[i].prog = obj[2].prog;
+
+    liste_proj_2[i].tr.translation = obj[0].tr.translation;
+    // liste_proj_2[i].tr.translation = liste_char[id_joueur].tr.translation;
 }
 
 bool boundaries(float posX,float posZ)
