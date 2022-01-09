@@ -29,16 +29,16 @@ const int nb_char = 2;
 objet3d liste_char[nb_char];
 vec3 liste_pos_char[nb_char] = {vec3(-7.0,0.0,-7.0),vec3(7.0,0.0,7.0)};
 
-const int nb_projectile_1 = 9;
+const int nb_projectile_1 =16;
 int current_nb_proj_1 = 0;
 objet3d liste_proj_1[nb_projectile_1];
 float liste_direction_1[nb_projectile_1];
-const int nb_projectile_2 = 5;
+const int nb_projectile_2 = 16;
 int current_nb_proj_2 = 0;
 objet3d liste_proj_2[nb_projectile_2];
 float liste_direction_2[nb_projectile_2];
 
-const int nb_text = 2;
+const int nb_text = 4;
 text text_to_draw[nb_text];
 
 // initialisation des variables globales
@@ -151,6 +151,26 @@ static void reset() {
     for (int i = 0; i < nb_projectile_2; i++) {
         init_proj_2(i);
     }
+}
+
+static void affichage() {
+    // Affichage joueur 1
+    text_to_draw[2] = text_to_draw[0];
+    char str_vie_j1[10];
+    sprintf(str_vie_j1, "%d", vie_joueur_1);
+
+    text_to_draw[2].value = str_vie_j1;
+    text_to_draw[2].bottomLeft = vec2(-1.05, -1.0);
+    text_to_draw[2].topRight = vec2(-0.85, -0.8);
+
+    // Affichage joueur 2
+    text_to_draw[3] = text_to_draw[2];
+    char str_vie_j2[10];
+    sprintf(str_vie_j2, "%d", vie_joueur_2);
+
+    text_to_draw[3].value = str_vie_j2;
+    text_to_draw[3].bottomLeft.x = 0.79;
+    text_to_draw[3].topRight.x = 0.99;
 }
 
 
@@ -436,7 +456,19 @@ static void keyboard_callback(unsigned char key, int, int)
       case 'l':
           obj[4].tr.translation.y -= 0.2;
           printf("res = %f \n", obj[4].tr.translation.y);
-          break;*/
+          break;
+    case '1':
+        text_to_draw[2].topRight.x += 0.1;
+        break;
+    case '2':
+        text_to_draw[2].topRight.x -= 0.1;
+        break;
+    case '4':
+        text_to_draw[2].topRight.y += 0.1;
+        break;
+    case '5':
+        text_to_draw[2].topRight.y -= 0.1;
+        break;*/
 
     // Commandes Player 1
     
@@ -647,6 +679,8 @@ static void timer_callback(int)
   }
 
   mvt_projectile();
+
+  affichage();
 
   if (check_fin()) {
       printf("fin");
@@ -1038,11 +1072,13 @@ void init_arene()
     obj[4].vao = upload_mesh_to_gpu(m);
 
     obj[4].nb_triangle = m.connectivity.size();
-    obj[4].texture_id = glhelper::load_texture("data/pierre.tga");
+    obj[4].texture_id = glhelper::load_texture("data/white.tga");
     obj[4].visible = true;
     obj[4].prog = shader_program_id;
 
     obj[4].tr.translation = vec3(0.0, -1.35, 0.0);
+    //obj[4].tr.translation = vec3(0.0, 0.5, 0.0);
+
 }
 
 bool boundaries(float posX, float posZ)

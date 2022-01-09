@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
+#include <string>
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>
@@ -86,3 +87,4 @@ void gestion_projectile(int id_joueur);
 void mvt_projectile();
 
 bool check_fin();
+void affichage();
