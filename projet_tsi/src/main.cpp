@@ -38,6 +38,44 @@ int current_nb_proj_2 = 0;
 objet3d liste_proj_2[nb_projectile_2];
 float liste_direction_2[nb_projectile_2];
 
+const int nb_mur = 33;
+objet3d liste_mur[nb_mur];
+vec3 liste_pos_mur[nb_mur] = {
+    vec3(0.0,0.0,0.0),
+    vec3(1.0,0.0,-2.0),
+    vec3(1.0,0.0,-3.0),
+    vec3(1.0,0.0,-4.0),
+    vec3(1.0,0.0,-5.0),
+    vec3(3.0,0.0,-6.0),
+    vec3(4.0,0.0,-6.0),
+    vec3(5.0,0.0,-1.0),
+    vec3(5.0,0.0,-2.0),
+    vec3(5.0,0.0,-3.0),
+    vec3(4.0,0.0,2.0),
+    vec3(5.0,0.0,2.0),
+    vec3(6.0,0.0,2.0),
+    vec3(3.0,0.0,4.0),
+    vec3(3.0,0.0,6.0),
+    vec3(3.0,0.0,7.0),
+    vec3(3.0,0.0,8.0),
+    vec3(-1.0,0.0,2.0),
+    vec3(-1.0,0.0,3.0),
+    vec3(-1.0,0.0,4.0),
+    vec3(-1.0,0.0,5.0),
+    vec3(-3.0,0.0,6.0),
+    vec3(-4.0,0.0,6.0),
+    vec3(-5.0,0.0,1.0),
+    vec3(-5.0,0.0,2.0),
+    vec3(-5.0,0.0,3.0),
+    vec3(-4.0,0.0,-2.0),
+    vec3(-5.0,0.0,-2.0),
+    vec3(-6.0,0.0,-2.0),
+    vec3(-3.0,0.0,-4.0),
+    vec3(-3.0,0.0,-6.0),
+    vec3(-3.0,0.0,-7.0),
+    vec3(-3.0,0.0,-8.0),
+};
+
 const int nb_text = 4;
 text text_to_draw[nb_text];
 
@@ -81,6 +119,8 @@ float liste_boundaries[56] = {
 };
 bool valRen;
 
+float delta_proj = 1.7f;
+
 /*****************************************************************************\
 * initialisation                                                              *
 \*****************************************************************************/
@@ -101,7 +141,11 @@ static void init()
   init_arene();
   
   for (int i=0 ; i<nb_char ; i++) {
-    init_char(i,liste_pos_char);
+      init_char(i,liste_pos_char);
+  }
+
+  for (int i = 0; i < nb_mur; i++) {
+      init_mur(i, liste_pos_mur);
   }
 
   for (int i = 0; i < nb_projectile_1; i++) {
@@ -211,40 +255,40 @@ void mvt_projectile() {
 
             if (orientation == (float)-2.35) {
                 // tir diagonale haut gauche
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 0.9;
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 0.9;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 1.2;
             }
             else if (orientation == (float)2.35) {
                 // tir diagonale haut droite
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 0.9;
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 0.9;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 1.2;
             }
             else if (orientation == (float)3.14) {
                 // tir haut
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 1.2;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * delta_proj;
             }
             else if (orientation == (float)-0.78) {
                 // tir diagonale bas gauche
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 0.9;
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 0.9;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 1.2;
             }
             else if (orientation == (float)0.78) {
                 // tir diagonale bas droite
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 0.9;
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 0.9;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 1.2;
 
             }
             else if (orientation == (float)0) {
                 // tir bas
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 1.2;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * delta_proj;
             }
             else if (orientation == (float)-1.57) {
                 // tir gauche
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * delta_proj;
             }
             else if (orientation == (float)1.57) {
                 // tir droite
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * delta_proj;
             }
 
             if (boundaries(nouvelle_pos_x_proj, nouvelle_pos_z_proj)) {
@@ -274,40 +318,40 @@ void mvt_projectile() {
 
             if (orientation == (float)-2.35) {
                 // tir diagonale haut gauche
-                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL * 0.7;
-                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL * 0.7;
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL * 1.2;
             }
             else if (orientation == (float)2.35) {
                 // tir diagonale haut droite
-                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL * 0.7;
-                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL * 0.7;
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL * 1.2;
             }
             else if (orientation == (float)3.14) {
                 // tir haut
-                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL;
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z - dL*delta_proj;
             }
             else if (orientation == (float)-0.78) {
                 // tir diagonale bas gauche
-                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL * 0.7;
-                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL * 0.7;
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL * 1.2;
             }
             else if (orientation == (float)0.78) {
                 // tir diagonale bas droite
-                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL * 0.7;
-                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL * 0.7;
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL * 1.2;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL * 1.2;
 
             }
             else if (orientation == (float)0) {
                 // tir bas
-                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL;
+                nouvelle_pos_z_proj = liste_proj_2[i].tr.translation.z + dL*delta_proj;
             }
             else if (orientation == (float)-1.57) {
                 // tir gauche
-                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x - dL*delta_proj;
             }
             else if (orientation == (float)1.57) {
                 // tir droite
-                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL;
+                nouvelle_pos_x_proj = liste_proj_2[i].tr.translation.x + dL*delta_proj;
             }
 
             if (boundaries(nouvelle_pos_x_proj, nouvelle_pos_z_proj)) {
@@ -342,6 +386,9 @@ void mvt_projectile() {
 
   for(int i = 0; i < nb_char; ++i)
     draw_obj3d(liste_char + i, cam);
+
+  for (int i = 0; i < nb_mur; ++i)
+      draw_obj3d(liste_mur + i, cam);
 
   for(int i = 0; i < nb_text; ++i)
     draw_text(text_to_draw + i);
@@ -456,19 +503,7 @@ static void keyboard_callback(unsigned char key, int, int)
       case 'l':
           obj[4].tr.translation.y -= 0.2;
           printf("res = %f \n", obj[4].tr.translation.y);
-          break;
-    case '1':
-        text_to_draw[2].topRight.x += 0.1;
-        break;
-    case '2':
-        text_to_draw[2].topRight.x -= 0.1;
-        break;
-    case '4':
-        text_to_draw[2].topRight.y += 0.1;
-        break;
-    case '5':
-        text_to_draw[2].topRight.y -= 0.1;
-        break;*/
+          break;*/
 
     // Commandes Player 1
     
@@ -614,7 +649,7 @@ static void timer_callback(int)
     nouvellePosX = liste_char[0].tr.translation.x + dL;
     liste_char[0].tr.rotation_euler.y = 1.57;
   }
-  if ((boundaries(nouvellePosX,nouvellePosZ)) && (collision(1,nouvellePosX,nouvellePosZ))){
+  if ((boundaries(nouvellePosX,nouvellePosZ)) && (collision(1,nouvellePosX,nouvellePosZ)) && (collision(3, nouvellePosX, nouvellePosZ))){
     liste_char[0].tr.translation.x = nouvellePosX;
     liste_char[0].tr.translation.z = nouvellePosZ;
   }
@@ -662,7 +697,7 @@ static void timer_callback(int)
     nouvellePosX = liste_char[1].tr.translation.x + dL;
     liste_char[1].tr.rotation_euler.y = 1.57;
   }
-  if ((boundaries(nouvellePosX,nouvellePosZ)) && (collision(2,nouvellePosX,nouvellePosZ))){
+  if ((boundaries(nouvellePosX,nouvellePosZ)) && (collision(2,nouvellePosX,nouvellePosZ)) && (collision(3, nouvellePosX, nouvellePosZ))){
     liste_char[1].tr.translation.x = nouvellePosX;
     liste_char[1].tr.translation.z = nouvellePosZ;
   }
@@ -901,9 +936,9 @@ void init_model_4()
     mesh m = load_obj_file("data/mur.obj");
 
     // Affecte une transformation sur les sommets du maillage
-    float s = 0.35f;
+    float s = 0.5f;
     mat4 transform = mat4(s, 0.0f, 0.0f, 0.0f,
-        0.0f, s, 0.0f, 0.0f,
+        0.0f, 0.35f, 0.0f, 0.0f,
         0.0f, 0.0f, s, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f);
     apply_deformation(&m, transform);
@@ -918,7 +953,7 @@ void init_model_4()
 
     obj[3].nb_triangle = m.connectivity.size();
     obj[3].texture_id = glhelper::load_texture("data/paille.tga");
-    obj[3].visible = true;
+    obj[3].visible = false;
     obj[3].prog = shader_program_id;
 
     obj[3].tr.translation = vec3(0.0, 0.0, 0.0);
@@ -982,23 +1017,21 @@ void init_model_2()
 void init_model_3()
 {
   // Chargement d'un maillage a partir d'un fichier
-  mesh m = load_off_file("data/armadillo_light.off");
-  //mesh m = load_obj_file("data/projectile.obj");
+  mesh m = load_obj_file("data/projectile.obj");
 
   // Affecte une transformation sur les sommets du maillage
-  float s = 0.01f;
-  mat4 transform = mat4(   s, 0.0f, 0.0f, 0.0f,
-      0.0f,    s, 0.0f, 0.50f,
-      0.0f, 0.0f,   s , 0.0f,
+  float s = 0.27f;
+  mat4 transform = mat4(s, 0.0f, 0.0f, 0.0f,
+      0.0f, s, 0.0f, 0.0f,
+      0.0f, 0.0f, s, 0.0f,
       0.0f, 0.0f, 0.0f, 1.0f);
-  apply_deformation(&m,matrice_rotation(M_PI/2.0f,1.0f,0.0f,0.0f));
-  apply_deformation(&m,matrice_rotation(M_PI,0.0f,1.0f,0.0f));
-  apply_deformation(&m,transform);
+  apply_deformation(&m, transform);
 
+  // Centre la rotation du modele 1 autour de son centre de gravite approximatif
   obj[2].tr.rotation_center = vec3(0.0f, 0.0f, 0.0f);
 
   update_normals(&m);
-  fill_color(&m,vec3(1.0f,1.0f,1.0f));
+  fill_color(&m, vec3(1.0f, 1.0f, 1.0f));
 
   obj[2].vao = upload_mesh_to_gpu(m);
 
@@ -1007,7 +1040,7 @@ void init_model_3()
   obj[2].visible = false;
   obj[2].prog = shader_program_id;
 
-  obj[2].tr.translation = vec3(2.0, 0.0, -10.0);
+  obj[2].tr.translation = vec3(-2.0, 0.0, -10.0);
 }
 
 void init_char(int i,vec3 *liste_pos_char)
@@ -1021,8 +1054,24 @@ void init_char(int i,vec3 *liste_pos_char)
   liste_char[i].prog = obj[0].prog;
 
   liste_char[i].tr.translation = liste_pos_char[i];
+  if (i == 0) {
+      liste_char[i].tr.rotation_euler.y = 0.78;
+  }
+  else if (i == 1) {
+      liste_char[i].tr.rotation_euler.y = -2.35;
+  }
 }
 
+void init_mur(int i, vec3 *liste_pos_mur)
+{
+    liste_mur[i].vao = obj[3].vao;
+
+    liste_mur[i].nb_triangle = obj[3].nb_triangle;
+    liste_mur[i].texture_id = obj[3].texture_id;
+    liste_mur[i].visible = true;
+    liste_mur[i].prog = obj[3].prog;
+    liste_mur[i].tr.translation = liste_pos_mur[i];
+}
 
 void init_proj_1(int i)
 {
@@ -1096,19 +1145,25 @@ bool boundaries(float posX, float posZ)
 }
 
 bool collision(int joueur,float posX,float posZ){
+    valRen = true;
     if(joueur == 1){
         vecteur_rayon = vec2(posX,posZ) - vec2(liste_char[1].tr.translation.x,liste_char[1].tr.translation.z);
-        if(norm(vecteur_rayon)>=1.0f){
-            return true;
-        } else {
-            return false;
+        if(norm(vecteur_rayon)<=1.15f){
+            valRen = false;
         }
     } else if(joueur == 2){
         vecteur_rayon = vec2(posX,posZ) - vec2(liste_char[0].tr.translation.x,liste_char[0].tr.translation.z);
-        if(norm(vecteur_rayon)>=1.0f){
-            return true;
-        } else {
-            return false;
+        if (norm(vecteur_rayon) <= 1.15f) {
+            valRen = false;
         }
-    } 
+        
+    } else if (joueur == 3) {
+        for (int i = 0; i < nb_mur; ++i) {
+            vecteur_rayon = vec2(posX, posZ) - vec2(liste_mur[i].tr.translation.x, liste_mur[i].tr.translation.z);
+            if (norm(vecteur_rayon) <= 0.9f) {
+                valRen = false;
+            }
+        }
+    }
+    return valRen;
 }
