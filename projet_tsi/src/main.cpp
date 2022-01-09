@@ -17,14 +17,17 @@ GLuint gui_program_id;
 
 camera cam;
 
-const int nb_obj = 3;
+const int nb_obj = 5;
 objet3d obj[nb_obj];
 
 const int id_joueur_1 = 0;
+int vie_joueur_1 = 3;
 const int id_joueur_2 = 1;
+int vie_joueur_2 = 3;
+
 const int nb_char = 2;
 objet3d liste_char[nb_char];
-vec3 liste_pos_char[nb_char] = {vec3(-2.0,0.0,0.0),vec3(2.0,0.0,0.0)};
+vec3 liste_pos_char[nb_char] = {vec3(-7.0,0.0,-7.0),vec3(7.0,0.0,7.0)};
 
 const int nb_projectile_1 = 9;
 int current_nb_proj_1 = 0;
@@ -87,13 +90,15 @@ static void init()
 
   cam.projection = matrice_projection(60.0f*M_PI/180.0f,1.0f,0.01f,100.0f);
   // cam.tr.translation = vec3(0.0f, 1.0f,0.0f);
-  cam.tr.translation = vec3(0.0f, 6.75f, 7.75f);
+  cam.tr.translation = vec3(0.0f, 3.75f, 9.25f);
   cam.tr.rotation_center = vec3(0.0f, 10.0f, 0.5f);
-  cam.tr.rotation_euler = vec3(1.33f, 0.0f, 0.0f);
+  cam.tr.rotation_euler = vec3(1.10f, 0.0f, 0.0f);
 
   init_model_1();
   init_model_2();
   init_model_3();
+  init_model_4();
+  init_arene();
   
   for (int i=0 ; i<nb_char ; i++) {
     init_char(i,liste_pos_char);
@@ -119,6 +124,35 @@ static void init()
   text_to_draw[1].bottomLeft.y = 0.8f;
   text_to_draw[1].topRight.y = 2.0f;
 }
+
+/*****************************************************************************\
+* deroulement du jeu                                                          *
+\*****************************************************************************/
+bool check_fin() {
+    bool ret = false;
+    if ((vie_joueur_1 == 0)||(vie_joueur_2 == 0)) {
+        ret = true;
+    }
+    return ret;
+}
+
+static void reset() {
+    vie_joueur_1 = 3;
+    vie_joueur_2 = 3;
+    
+    for (int i = 0; i < nb_char; i++) {
+        init_char(i, liste_pos_char);
+    }
+
+    for (int i = 0; i < nb_projectile_1; i++) {
+        init_proj_1(i);
+    }
+
+    for (int i = 0; i < nb_projectile_2; i++) {
+        init_proj_2(i);
+    }
+}
+
 
 /*****************************************************************************\
 * gestion projectile                                                          *
@@ -157,45 +191,52 @@ void mvt_projectile() {
 
             if (orientation == (float)-2.35) {
                 // tir diagonale haut gauche
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 0.7;
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 0.7;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 0.9;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 0.9;
             }
             else if (orientation == (float)2.35) {
                 // tir diagonale haut droite
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 0.7;
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 0.7;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 0.9;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 0.9;
             }
             else if (orientation == (float)3.14) {
                 // tir haut
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z - dL * 1.2;
             }
             else if (orientation == (float)-0.78) {
                 // tir diagonale bas gauche
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 0.7;
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 0.7;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 0.9;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 0.9;
             }
             else if (orientation == (float)0.78) {
                 // tir diagonale bas droite
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 0.7;
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 0.7;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 0.9;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 0.9;
 
             }
             else if (orientation == (float)0) {
                 // tir bas
-                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL;
+                nouvelle_pos_z_proj = liste_proj_1[i].tr.translation.z + dL * 1.2;
             }
             else if (orientation == (float)-1.57) {
                 // tir gauche
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x - dL * 1.2;
             }
             else if (orientation == (float)1.57) {
                 // tir droite
-                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL;
+                nouvelle_pos_x_proj = liste_proj_1[i].tr.translation.x + dL * 1.2;
             }
 
             if (boundaries(nouvelle_pos_x_proj, nouvelle_pos_z_proj)) {
-                liste_proj_1[i].tr.translation.x = nouvelle_pos_x_proj;
-                liste_proj_1[i].tr.translation.z = nouvelle_pos_z_proj;
+                if (collision(id_joueur_1+1, nouvelle_pos_x_proj, nouvelle_pos_z_proj)) {
+                    liste_proj_1[i].tr.translation.x = nouvelle_pos_x_proj;
+                    liste_proj_1[i].tr.translation.z = nouvelle_pos_z_proj;
+                }
+                else {
+                    init_proj_1(i);
+                    current_nb_proj_1--;
+                    vie_joueur_2--;
+                }
             }
             else {
                 init_proj_1(i);
@@ -250,8 +291,15 @@ void mvt_projectile() {
             }
 
             if (boundaries(nouvelle_pos_x_proj, nouvelle_pos_z_proj)) {
-                liste_proj_2[i].tr.translation.x = nouvelle_pos_x_proj;
-                liste_proj_2[i].tr.translation.z = nouvelle_pos_z_proj;
+                if (collision(id_joueur_2 + 1, nouvelle_pos_x_proj, nouvelle_pos_z_proj)) {
+                    liste_proj_2[i].tr.translation.x = nouvelle_pos_x_proj;
+                    liste_proj_2[i].tr.translation.z = nouvelle_pos_z_proj;
+                }
+                else {
+                    init_proj_2(i);
+                    current_nb_proj_2--;
+                    vie_joueur_1--;
+                }
             }
             else {
                 init_proj_2(i);
@@ -303,7 +351,95 @@ static void keyboard_callback(unsigned char key, int, int)
       exit(0);
       break;
 
+      // Changement de la translation de la caméra
+    /*
+    case 'i':
+        cam.tr.translation.x += delta;
+        printf("translation x = %f \n",cam.tr.translation.x);
+        break;
+      case 'u':
+        cam.tr.translation.x -= delta;
+        printf("translation x = %f \n",cam.tr.translation.x);
+        break;
+      case 'k':
+        cam.tr.translation.y += delta;
+        printf("translation y = %f \n",cam.tr.translation.y);
+        break;
+      case 'j':
+        cam.tr.translation.y -= delta;
+        printf("translation y = %f \n",cam.tr.translation.y);
+        break;
+      case ';':
+        cam.tr.translation.z += delta;
+        printf("translation z = %f \n",cam.tr.translation.z);
+        break;
+      case ',':
+        cam.tr.translation.z -= delta;
+        printf("translation z = %f \n",cam.tr.translation.z);
+        break;
+      // Changement de rotation_center de la camera
+      case 'y':
+        cam.tr.rotation_center.x += delta;
+        printf("rotation_center x = %f \n",cam.tr.rotation_center.x);
+        break;
+      case 't':
+        cam.tr.rotation_center.x -= delta;
+        printf("rotation _center x = %f \n",cam.tr.rotation_center.x);
+        break;
+      case 'h':
+        cam.tr.rotation_center.y += delta;
+        printf("rotation_center y = %f \n",cam.tr.rotation_center.y);
+        break;
+      case 'g':
+        cam.tr.rotation_center.y -= delta;
+        printf("rotation_center y = %f \n",cam.tr.rotation_center.y);
+        break;
+      case 'n':
+        cam.tr.rotation_center.z += delta;
+        printf("rotation_center z = %f \n",cam.tr.rotation_center.z);
+        break;
+      case 'b':
+        cam.tr.rotation_center.z -= delta;
+        printf("rotation_center z = %f \n",cam.tr.rotation_center.z);
+        break;
+      // Changement de rotation_euler de la camera
+      case 'r':
+        printf("avant x: %f",cam.tr.rotation_euler.x);
+        cam.tr.rotation_euler.x += delta;
+        printf("rotation_euler x = %f \n",cam.tr.rotation_euler.x);
+        break;
+      case 'e':
+        cam.tr.rotation_euler.x -= delta;
+        printf("rotation _euler x = %f \n",cam.tr.rotation_euler.x);
+        break;
+      case 'f':
+        cam.tr.rotation_euler.y += delta;
+        printf("rotation_euler y = %f \n",cam.tr.rotation_euler.y);
+        break;
+      case 'd':
+        cam.tr.rotation_euler.y -= delta;
+        printf("rotation_euler y = %f \n",cam.tr.rotation_euler.y);
+        break;
+      case 'v':
+        cam.tr.rotation_euler.z += delta;
+        printf("rotation_euler z = %f \n",cam.tr.rotation_euler.z);
+        break;
+      case 'c':
+        cam.tr.rotation_euler.z -= delta;
+        printf("rotation_euler z = %f \n",cam.tr.rotation_euler.z);
+        break;
+
+      case 'o':
+          obj[4].tr.translation.y += 0.2;
+          printf("res = %f \n", obj[4].tr.translation.y);
+          break;
+      case 'l':
+          obj[4].tr.translation.y -= 0.2;
+          printf("res = %f \n", obj[4].tr.translation.y);
+          break;*/
+
     // Commandes Player 1
+    
     case 'z':
       keyupP1_pressed = true;
       break;
@@ -511,6 +647,11 @@ static void timer_callback(int)
   }
 
   mvt_projectile();
+
+  if (check_fin()) {
+      printf("fin");
+      reset();
+  }
 }
 
 /*****************************************************************************\
@@ -694,10 +835,10 @@ GLuint upload_mesh_to_gpu(const mesh& m)
 void init_model_1()
 {
   // Chargement d'un maillage a partir d'un fichier
-  mesh m = load_obj_file("data/stegosaurus.obj");
+  mesh m = load_obj_file("data/char.obj");
 
   // Affecte une transformation sur les sommets du maillage
-  float s = 0.2f;
+  float s = 0.27f;
   mat4 transform = mat4(   s, 0.0f, 0.0f, 0.0f,
       0.0f,    s, 0.0f, 0.0f,
       0.0f, 0.0f,   s , 0.0f,
@@ -713,11 +854,40 @@ void init_model_1()
   obj[0].vao = upload_mesh_to_gpu(m);
 
   obj[0].nb_triangle = m.connectivity.size();
-  obj[0].texture_id = glhelper::load_texture("data/stegosaurus.tga");
+  obj[0].texture_id = glhelper::load_texture("data/blue.tga");
   obj[0].visible = false;
   obj[0].prog = shader_program_id;
 
   obj[0].tr.translation = vec3(-2.0, 0.0, -10.0);
+}
+
+void init_model_4()
+{
+    // Chargement d'un maillage a partir d'un fichier
+    mesh m = load_obj_file("data/mur.obj");
+
+    // Affecte une transformation sur les sommets du maillage
+    float s = 0.35f;
+    mat4 transform = mat4(s, 0.0f, 0.0f, 0.0f,
+        0.0f, s, 0.0f, 0.0f,
+        0.0f, 0.0f, s, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f);
+    apply_deformation(&m, transform);
+
+    // Centre la rotation du modele 1 autour de son centre de gravite approximatif
+    obj[3].tr.rotation_center = vec3(0.0f, 0.0f, 0.0f);
+
+    update_normals(&m);
+    fill_color(&m, vec3(1.0f, 1.0f, 1.0f));
+
+    obj[3].vao = upload_mesh_to_gpu(m);
+
+    obj[3].nb_triangle = m.connectivity.size();
+    obj[3].texture_id = glhelper::load_texture("data/paille.tga");
+    obj[3].visible = true;
+    obj[3].prog = shader_program_id;
+
+    obj[3].tr.translation = vec3(0.0, 0.0, 0.0);
 }
 
 void init_model_2()
@@ -768,7 +938,7 @@ void init_model_2()
   obj[1].nb_triangle = 2;
   obj[1].vao = upload_mesh_to_gpu(m);
 
-  obj[1].texture_id = glhelper::load_texture("data/grass.tga");
+  obj[1].texture_id = glhelper::load_texture("data/bois.tga");
 
   obj[1].visible = true;
   obj[1].prog = shader_program_id;
@@ -779,6 +949,7 @@ void init_model_3()
 {
   // Chargement d'un maillage a partir d'un fichier
   mesh m = load_off_file("data/armadillo_light.off");
+  //mesh m = load_obj_file("data/projectile.obj");
 
   // Affecte une transformation sur les sommets du maillage
   float s = 0.01f;
@@ -790,6 +961,8 @@ void init_model_3()
   apply_deformation(&m,matrice_rotation(M_PI,0.0f,1.0f,0.0f));
   apply_deformation(&m,transform);
 
+  obj[2].tr.rotation_center = vec3(0.0f, 0.0f, 0.0f);
+
   update_normals(&m);
   fill_color(&m,vec3(1.0f,1.0f,1.0f));
 
@@ -797,7 +970,6 @@ void init_model_3()
 
   obj[2].nb_triangle = m.connectivity.size();
   obj[2].texture_id = glhelper::load_texture("data/white.tga");
-
   obj[2].visible = false;
   obj[2].prog = shader_program_id;
 
@@ -842,6 +1014,35 @@ void init_proj_2(int i)
 
     liste_proj_2[i].tr.translation = obj[0].tr.translation;
     // liste_proj_2[i].tr.translation = liste_char[id_joueur].tr.translation;
+}
+
+void init_arene()
+{
+    // Chargement d'un maillage a partir d'un fichier
+    mesh m = load_obj_file("data/arene.obj");
+
+    // Affecte une transformation sur les sommets du maillage
+    float s = 0.27f;
+    mat4 transform = mat4(s, 0.0f, 0.0f, 0.0f,
+        0.0f, s, 0.0f, 0.0f,
+        0.0f, 0.0f, s, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f);
+    apply_deformation(&m, transform);
+
+    // Centre la rotation du modele 1 autour de son centre de gravite approximatif
+    obj[4].tr.rotation_center = vec3(0.0f, 0.0f, 0.0f);
+
+    update_normals(&m);
+    fill_color(&m, vec3(1.0f, 1.0f, 1.0f));
+
+    obj[4].vao = upload_mesh_to_gpu(m);
+
+    obj[4].nb_triangle = m.connectivity.size();
+    obj[4].texture_id = glhelper::load_texture("data/pierre.tga");
+    obj[4].visible = true;
+    obj[4].prog = shader_program_id;
+
+    obj[4].tr.translation = vec3(0.0, -1.35, 0.0);
 }
 
 bool boundaries(float posX, float posZ)
