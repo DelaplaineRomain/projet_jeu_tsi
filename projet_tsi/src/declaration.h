@@ -74,6 +74,7 @@ void init_model_3();
 void init_model_4();
 void init_arene();
 void init_char(int i,vec3 *liste_pos_char);
+void init_mur(int i, vec3 *liste_pos_mur);
 void init_proj_1(int i);
 void init_proj_2(int i);
 
